@@ -1,0 +1,35 @@
+# .github/workflows/release.yml — NightPulse
+#
+# Triggers on a version tag push (e.g. git tag v2.1.0 && git push --tags).
+# Uses the BigWigsMods packager to build a release zip, then uploads it
+# to CurseForge and creates a GitHub Release automatically.
+#
+# Required GitHub repository secrets (Settings → Secrets → Actions):
+#   CF_API_KEY   — your CurseForge API token (get from curseforge.com/account/api-tokens)
+#   GITHUB_TOKEN — provided automatically by GitHub Actions, no setup needed
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'   # fires on v1.0.0, v2.1.0, etc.
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed for changelog generation
+
+      - name: Package and upload
+        uses: BigWigsMods/packager@v2
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+          # Replace 000000 with your CurseForge project ID
+          # Find it on your CF project page under "About Project"
+          CF_PROJECT_ID: 000000

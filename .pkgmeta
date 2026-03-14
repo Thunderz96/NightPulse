@@ -1,0 +1,15 @@
+# .pkgmeta — NightPulse
+# Read by the BigWigsMods packager (used by CurseForge CI).
+# Docs: https://github.com/BigWigsMods/packager
+
+package-as: NightPulse
+
+ignore:
+  - .github
+  - .gitignore
+  - .pkgmeta
+  - CHANGELOG.md
+  - LICENSE
+  - README.md
+
+enable-nolib-creation: no

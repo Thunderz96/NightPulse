@@ -1,0 +1,19 @@
+# Compiled / build output
+*.zip
+
+# WoW runtime files — never commit these
+WTF/
+SavedVariables/
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories
+.vscode/
+.idea/
+*.suo
+
+# Claude workspace
+.claude/
