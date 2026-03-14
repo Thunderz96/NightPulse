@@ -14,29 +14,218 @@ local CE = {}
 -- encounterID -> list of ability records.
 -- Find an encounterID in-game during a fight:
 --   /run print(select(7, EJ_GetEncounterInfo(EJ_GetCurrentEncounter())))
+-- Encounter IDs for unknown bosses can be found in-game during a fight:
+--   /run print(select(7, EJ_GetEncounterInfo(EJ_GetCurrentEncounter())))
+-- Bosses without confirmed IDs are commented out below — fill in and uncomment when found.
 local ENCOUNTER_ABILITIES = {
-    [3011] = {  -- Voidspire: The Sundered Gate
-        { name="Void Cleave",     castTimeSec=2.5, intervalSec=20, priority="high",
-          tip="Move behind boss — ranged safe spot." },
-        { name="Tenebrous Burst", castTimeSec=1.5, intervalSec=35, priority="high",
-          tip="Spread 10 yards — hits all in range." },
-        { name="Siphon Essence",  castTimeSec=3.0, intervalSec=45, priority="medium",
-          tip="INTERRUPT — restores boss mana on success." },
+
+    -- =========================================================
+    -- NEXUS-POINT XENAS (Midnight new dungeon)
+    -- =========================================================
+    [2801] = {  -- Chief Corewright Kasreth
+        { name="Reflux Charge",        castTimeSec=3.0, intervalSec=45, priority="high",
+          tip="Run through Leyline Arrays to destroy them — use a defensive." },
+        { name="Corespark Detonation",  castTimeSec=2.5, intervalSec=35, priority="high",
+          tip="Massive knockback circle — outrange or pre-position away from center." },
+        { name="Leyline Array",         castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="LETHAL — do not touch unless targeted by Reflux Charge." },
     },
-    [3012] = {  -- Voidspire: Whisperwind Atrium
-        { name="Eclipse Pulse", castTimeSec=2.0, intervalSec=30, priority="high",
-          tip="Stack for healing but not on tanks." },
-        { name="Lunar Rift",    castTimeSec=4.0, intervalSec=60, priority="medium",
-          tip="Move out of rift zone before detonation." },
+    -- Corewarden Nysarra  (ID unknown — uncomment when confirmed)
+    -- [????] = {
+    --     { name="Lightscar Flare", castTimeSec=5.0, intervalSec=60, priority="high",
+    --       tip="Dodge initial hit, then step INTO beam for 300% damage/healing buff." },
+    --     { name="Nullify",         castTimeSec=2.0, intervalSec=20, priority="high",
+    --       tip="INTERRUPT Grand Nullifier add — prevents group-wide silence." },
+    -- },
+    -- Lothraxion  (ID unknown — uncomment when confirmed)
+    -- [????] = {
+    --     { name="Divine Guile",         castTimeSec=6.0, intervalSec=50, priority="high",
+    --       tip="Intermission — interrupt clone WITH horns. Hunter's Mark reveals real boss." },
+    --     { name="Searing Rend",         castTimeSec=2.5, intervalSec=18, priority="high",
+    --       tip="Frontal cleave — avoid the path even as ranged." },
+    --     { name="Brilliant Dispersion", castTimeSec=3.0, intervalSec=32, priority="medium",
+    --       tip="Dodge Fractured Images. 12.0.1: reaction delay added before images spawn." },
+    -- },
+
+    -- =========================================================
+    -- ALGETH'AR ACADEMY (Dragonflight)
+    -- =========================================================
+    [2562] = {  -- Vexamus
+        { name="Arcane Orbs", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Soak orbs before boss hits 100 energy — cycle personal defensives." },
     },
-    [3021] = {  -- March on Quel'Danas: Dawnbreaker Keep
-        { name="Sunfire Volley", castTimeSec=2.0, intervalSec=25, priority="high",
-          tip="Targets farthest player — stay mid-range." },
-        { name="Arcane Siphon",  castTimeSec=3.5, intervalSec=40, priority="high",
-          tip="INTERRUPT — empowers next cast if it completes." },
-        { name="Consecration",   castTimeSec=nil, intervalSec=55, priority="medium",
-          tip="Instant cast — dodge golden ground zones." },
+    [2563] = {  -- Overgrown Ancient
+        { name="Germinate", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Stack tight on tank so Hungry Lashers spawn grouped for AoE burst." },
     },
+    [2564] = {  -- Crawth
+        { name="Deafening Screech", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Heavy AoE + silence — stop spellcasts and use 40%+ defensive." },
+    },
+    [2565] = {  -- Echo of Doragosa
+        { name="Overwhelming Power", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Move to room edge at 2 stacks to drop Arcane Rift safely." },
+    },
+
+    -- =========================================================
+    -- PIT OF SARON (Wrath of the Lich King)
+    -- =========================================================
+    [2150] = {  -- Forgemaster Garfrost
+        { name="Glacial Overload", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Break LoS behind Saronite Ores immediately." },
+    },
+    [2001] = {  -- Ick and Krick
+        { name="Death Bolt",  castTimeSec=2.0, intervalSec=nil, priority="high",
+          tip="INTERRUPT — strict kick requirement." },
+        { name="Toxic Waste", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Run immediately when fixated; dodge all green puddles." },
+    },
+    [837] = {   -- Scourgelord Tyrannus
+        { name="Scourgelord's Reckoning", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Lethal player-targeted jump. 12.0.1: reaction window increased 25%." },
+    },
+
+    -- =========================================================
+    -- SEAT OF THE TRIUMVIRATE (Legion)
+    -- =========================================================
+    [1912] = {  -- Zuraal the Ascended
+        { name="Coalesced Void", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Slow/CC the add before it reaches the boss." },
+    },
+    [1913] = {  -- Saprish
+        { name="Void Bomb",    castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Stack with group to handle bombs. 12.0.1: bombs spawn closer to targets." },
+        { name="Dread Screech", castTimeSec=2.0, intervalSec=nil, priority="high",
+          tip="INTERRUPT Shadewing add — lethal if missed." },
+    },
+    [1914] = {  -- Viceroy Nezhar
+        { name="Collapsing Void", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Watch boss energy — pre-position for the massive knockback." },
+        { name="Mind Flay",       castTimeSec=2.0, intervalSec=nil, priority="medium",
+          tip="Interrupt your assigned cast. 12.0.1: multi-target bug fixed." },
+    },
+    [1915] = {  -- L'ura
+        { name="Siphon Void", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Boss takes massive increased damage here — align all offensive CDs." },
+    },
+
+    -- =========================================================
+    -- SKYREACH (Warlords of Draenor)
+    -- =========================================================
+    [1698] = {  -- Ranjit
+        { name="Fan of Blades", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Use defensives for the bleed — don't stand on platform edge." },
+    },
+    [1699] = {  -- Araknath
+        { name="Light Ray", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Rotate soak duties on the beam — use a defensive. 12.0.1: dmg -11%." },
+    },
+    [1700] = {  -- Rukhran
+        { name="Sunwings", castTimeSec=nil, intervalSec=nil, priority="medium",
+          tip="Stay close to boss to bait Sunwing spawns for easier group cleave." },
+    },
+    [1701] = {  -- High Sage Viryx
+        { name="Scorching Ray", castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Use a strong defensive when targeted." },
+        { name="Cast Down",     castTimeSec=nil, intervalSec=nil, priority="high",
+          tip="Kill Solar Zealot before the drop — use Disengage/Blink if dropped." },
+    },
+
+    -- =========================================================
+    -- MAGISTERS' TERRACE (Midnight remake) — all IDs unknown
+    -- =========================================================
+    -- [????] = {  -- Arcanotron Custos
+    --     { name="Refueling Protocol", castTimeSec=16.0, intervalSec=50, priority="high",
+    --       tip="Collect energy orbs to prevent boss reaching 100% damage stacks." },
+    --     { name="Arcane Expulsion",   castTimeSec=2.5,  intervalSec=18, priority="high",
+    --       tip="Targeted burst — stand still and use a personal defensive." },
+    --     { name="Repulsing Slam",     castTimeSec=2.0,  intervalSec=25, priority="medium",
+    --       tip="Tank knockback — avoid standing directly behind the tank." },
+    -- },
+    -- [????] = {  -- Seranel Sunlash
+    --     { name="Wave of Silence", castTimeSec=2.0, intervalSec=45, priority="high",
+    --       tip="Step into a Suppression Zone (black circles) to avoid 10s silence." },
+    --     { name="Runic Mark",      castTimeSec=3.0, intervalSec=30, priority="high",
+    --       tip="Clear DoT by entering a Suppression Zone — not if an ally is inside." },
+    --     { name="Null Reaction",   castTimeSec=nil, intervalSec=22, priority="medium",
+    --       tip="Reactive damage. 12.0.1: dmg reduced 16%." },
+    -- },
+    -- [????] = {  -- Gemellus
+    --     { name="Neural Link",  castTimeSec=3.0, intervalSec=35, priority="high",
+    --       tip="Move toward linked boss copy to reduce damage. 12.0.1: visuals improved." },
+    --     { name="Cosmic Sting", castTimeSec=4.0, intervalSec=28, priority="high",
+    --       tip="Creates ground puddles — Hunters Feign Death to cancel if targeted." },
+    --     { name="Astral Grasp", castTimeSec=2.5, intervalSec=20, priority="medium",
+    --       tip="High shadow burst. 12.0.1: cast frequency reduced." },
+    -- },
+    -- [????] = {  -- Degentrius
+    --     { name="Unstable Void", castTimeSec=nil, intervalSec=40, priority="high",
+    --       tip="Assign quadrants — soak orbs in your area to prevent lethal explosion." },
+    --     { name="Void Totems",   castTimeSec=nil, intervalSec=15, priority="high",
+    --       tip="Kill totems immediately — each adds 10% shadow damage taken." },
+    -- },
+
+    -- =========================================================
+    -- MAISARA CAVERNS (Midnight new dungeon) — all IDs unknown
+    -- =========================================================
+    -- [????] = {  -- Muro'jin and Nekraxx
+    --     { name="Carrion Swoop",    castTimeSec=1.5, intervalSec=22, priority="high",
+    --       tip="Step into a Freezing Trap to stun the boss and avoid lethal damage." },
+    --     { name="Infected Pinions", castTimeSec=2.5, intervalSec=30, priority="high",
+    --       tip="Group disease — use personal defensives or disease dispels immediately." },
+    --     { name="Barrage",          castTimeSec=4.0, intervalSec=40, priority="medium",
+    --       tip="Tracking frontal — stand still if targeted so allies can dodge the path." },
+    -- },
+    -- [????] = {  -- Vordaza
+    --     { name="Necrotic Convergence", castTimeSec=60.0, intervalSec=nil, priority="high",
+    --       tip="Boss gains a massive shield — burn absorb to stop ramping group damage." },
+    --     { name="Wrest Phantoms",       castTimeSec=nil,  intervalSec=25, priority="high",
+    --       tip="Kite your phantom into another player's phantom to destroy them both." },
+    --     { name="Unmake",               castTimeSec=2.0,  intervalSec=20, priority="high",
+    --       tip="Wide frontal — stay within 30 yards; harder to dodge at max range." },
+    -- },
+    -- [????] = {  -- Rak'tul, Vessel of Souls
+    --     { name="Soulrending Roar", castTimeSec=8.0, intervalSec=nil, priority="high",
+    --       tip="Interrupt/CC the Malignant Soul add for a massive group damage buff." },
+    --     { name="Crush Souls",      castTimeSec=3.0, intervalSec=40,  priority="high",
+    --       tip="Leaps and plants Soulbind Totems — stack near tank to group totems." },
+    --     { name="Soulbind Totem",   castTimeSec=nil, intervalSec=nil, priority="medium",
+    --       tip="Applies gravity pull — run against it or use a movement ability." },
+    -- },
+
+    -- =========================================================
+    -- WINDRUNNER SPIRE (Midnight new dungeon) — all IDs unknown
+    -- =========================================================
+    -- [????] = {  -- Emberdawn
+    --     { name="Burning Gale",    castTimeSec=16.0, intervalSec=nil, priority="high",
+    --       tip="Stay close to boss — reduces distance to dodge rotating fire frontals." },
+    --     { name="Flaming Updraft", castTimeSec=3.0,  intervalSec=28,  priority="high",
+    --       tip="Position near a wall before debuff expires to safely drop fire puddle." },
+    -- },
+    -- [????] = {  -- Derelict Duo (Kalis and Latch)
+    --     { name="Debilitating Shriek", castTimeSec=6.0, intervalSec=nil, priority="high",
+    --       tip="Uninterruptible — bait Latch's Heaving Yank into Kalis to stop it." },
+    --     { name="Shadow Bolt",         castTimeSec=2.0, intervalSec=12,  priority="high",
+    --       tip="Maintain strict interrupt rotation — unkicked casts deal massive damage." },
+    -- },
+    -- [????] = {  -- Commander Kroluk
+    --     { name="Intimidating Shout", castTimeSec=2.0, intervalSec=30,  priority="high",
+    --       tip="Stack within 5 yards of an ally when cast finishes — or get feared." },
+    --     { name="Reckless Leap",      castTimeSec=1.5, intervalSec=22,  priority="high",
+    --       tip="Targets farthest player — bait to room edge and use a defensive." },
+    --     { name="Rallying Bellow",    castTimeSec=4.0, intervalSec=nil, priority="medium",
+    --       tip="Boss immune + add phase at 66%/33% HP. 12.0.1: dmg -12.5%." },
+    --     { name="Bladestorm",         castTimeSec=nil, intervalSec=45,  priority="medium",
+    --       tip="Fixate mechanic. 12.0.1: movement penalty for targets reduced." },
+    -- },
+    -- [????] = {  -- The Restless Heart
+    --     { name="Arrow Rain",         castTimeSec=5.0, intervalSec=65, priority="high",
+    --       tip="Turbulent Arrows clear your lethal Squall Leap DoT stacks." },
+    --     { name="Bolt Gale",          castTimeSec=2.5, intervalSec=30, priority="high",
+    --       tip="Random targeted frontal. 12.0.1: width increased 25%." },
+    --     { name="Bullseye Windblast", castTimeSec=3.0, intervalSec=45, priority="high",
+    --       tip="Expanding stun rings — bounce over with a Turbulent Arrow." },
+    -- },
 }
 
 local PRIORITY_COLOUR = { high="|cffff4444", medium="|cffffaa00", low="|cffffff44" }
