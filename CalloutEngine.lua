@@ -128,10 +128,23 @@ local function OnBossSpellCastStart(event, unit, castGUID, spellID)
     if not isBoss then return end
     local ok, name, _, _, startMs, endMs, _, _, notInterruptible = pcall(UnitCastingInfo, unit)
     if not ok then return end
-    local displayName  = name or (unit.." cast")
-    local durationSec  = (endMs and startMs) and string.format("%.1f", (endMs-startMs)/1000) or nil
-    local kickTag      = (not notInterruptible) and " |cff00ff00[KICK?]|r" or ""
-    local durationTag  = durationSec and (" ("..durationSec.."s)") or ""
+    local displayName = name or (unit.." cast")
+    -- endMs/startMs are secret number values in Midnight — arithmetic is tainted.
+    -- Wrap in pcall; if it fails we omit the duration display.
+    local durationSec = nil
+    if endMs and startMs then
+        local ok2, result = pcall(function()
+            return string.format("%.1f", (endMs - startMs) / 1000)
+        end)
+        if ok2 then durationSec = result end
+    end
+    -- notInterruptible is also a secret boolean in Midnight — wrap in pcall.
+    local kickTag = ""
+    local ok3, kresult = pcall(function()
+        return (not notInterruptible) and " |cff00ff00[KICK?]|r" or ""
+    end)
+    if ok3 then kickTag = kresult end
+    local durationTag = durationSec and (" ("..durationSec.."s)") or ""
     FireAlert(displayName..durationTag, "medium", nil, kickTag)
 end
 
