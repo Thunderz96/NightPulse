@@ -128,18 +128,13 @@ local function OnBossSpellCastStart(event, unit, castGUID, spellID)
     if not isBoss then return end
     local ok, name, _, _, startMs, endMs, _, _, notInterruptible = pcall(UnitCastingInfo, unit)
     if not ok then return end
-    local displayName  = (name and name ~= "") and name or (unit.." cast")
+    local displayName  = name or (unit.." cast")
     local durationSec  = (endMs and startMs) and string.format("%.1f", (endMs-startMs)/1000) or nil
     local kickTag      = (not notInterruptible) and " |cff00ff00[KICK?]|r" or ""
     local durationTag  = durationSec and (" ("..durationSec.."s)") or ""
     FireAlert(displayName..durationTag, "medium", nil, kickTag)
 end
 
-local function OnBossWarningAdded(event, warningKey, warningText, severity)
-    local priority = (severity==3) and "high" or (severity==2) and "medium" or "low"
-    if priority == "low" then return end
-    FireAlert(warningText or "Boss mechanic incoming", priority, nil, "|cff888888[BossWarning]|r")
-end
 
 local function OnNameplateSpellCastStart(event, unit, castGUID, spellID)
     if isInInstance then return end
@@ -160,7 +155,7 @@ function CE:Enable()
     NightPulse:RegisterEvent("ENCOUNTER_START",       OnEncounterStart)
     NightPulse:RegisterEvent("ENCOUNTER_END",         OnEncounterEnd)
     NightPulse:RegisterEvent("UNIT_SPELLCAST_START",  OnBossSpellCastStart)
-    NightPulse:RegisterEvent("BOSS_WARNING_ADDED",    OnBossWarningAdded)
+    -- BOSS_WARNING_ADDED is not a valid Midnight event; handler kept for future use
     NightPulse:RegisterEvent("UNIT_SPELLCAST_START",  OnNameplateSpellCastStart)
     NightPulse:RegisterEvent("PLAYER_ENTERING_WORLD", UpdateInstanceState)
     NightPulse:RegisterEvent("ZONE_CHANGED_NEW_AREA", UpdateInstanceState)
@@ -171,7 +166,7 @@ function CE:Disable()
     NightPulse:UnregisterEvent("ENCOUNTER_START")
     NightPulse:UnregisterEvent("ENCOUNTER_END")
     NightPulse:UnregisterEvent("UNIT_SPELLCAST_START")
-    NightPulse:UnregisterEvent("BOSS_WARNING_ADDED")
+
     NightPulse:UnregisterEvent("PLAYER_ENTERING_WORLD")
     NightPulse:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
     ClearEncounterTimers()
