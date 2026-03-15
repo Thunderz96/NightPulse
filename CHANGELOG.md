@@ -3,6 +3,13 @@
 All notable changes to NightPulse will be documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.3.0] - 2026-03-14
+
+- Added per-boss, per-ability callout filter panel (`UI/CalloutConfig.lua`) — open via "Callout Filters..." button in the main window
+- Added global minimum priority filter: High only / High+Med / All
+- Per-ability mutes persist across sessions in SavedVariables
+- Mutes also apply to live-detected boss casts (UNIT_SPELLCAST_START path)
+
 ## [2.2.0] - 2026-03-14
 
 - `CalloutEngine`: Full Season 1 Midnight M+ ability database — 9 bosses with live pre-cast timer alerts (Nexus-Point Xenas, Algeth'ar Academy, Pit of Saron, Seat of the Triumvirate, Skyreach)

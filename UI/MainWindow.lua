@@ -183,6 +183,10 @@ local function BuildMainWindow()
         "Plays a chime when a callout fires.",
         NightPulse:GetSetting("callouts", "playSound"),
         function(checked) NightPulse:SetSetting("callouts", "playSound", checked) end)
+    yPos = yPos - ROW_H
+
+    AddButton(f, yPos, PADDING, "Callout Filters...",
+        function() NightPulse:ToggleCalloutConfig() end)
     yPos = yPos - ROW_H - 4
 
     AddSectionLabel(f, yPos, "Affix tracker")

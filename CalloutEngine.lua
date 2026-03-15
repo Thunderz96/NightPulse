@@ -228,6 +228,27 @@ local ENCOUNTER_ABILITIES = {
     -- },
 }
 
+-- Display names for each encounterID — used by the config UI
+local BOSS_NAMES = {
+    [2801] = "Chief Corewright Kasreth (Nexus-Point Xenas)",
+    [2562] = "Vexamus (Algeth'ar Academy)",
+    [2563] = "Overgrown Ancient (Algeth'ar Academy)",
+    [2564] = "Crawth (Algeth'ar Academy)",
+    [2565] = "Echo of Doragosa (Algeth'ar Academy)",
+    [2150] = "Forgemaster Garfrost (Pit of Saron)",
+    [2001] = "Ick and Krick (Pit of Saron)",
+    [837]  = "Scourgelord Tyrannus (Pit of Saron)",
+    [1912] = "Zuraal the Ascended (Seat of the Triumvirate)",
+    [1913] = "Saprish (Seat of the Triumvirate)",
+    [1914] = "Viceroy Nezhar (Seat of the Triumvirate)",
+    [1915] = "L'ura (Seat of the Triumvirate)",
+    [1698] = "Ranjit (Skyreach)",
+    [1699] = "Araknath (Skyreach)",
+    [1700] = "Rukhran (Skyreach)",
+    [1701] = "High Sage Viryx (Skyreach)",
+}
+
+local PRIORITY_RANK  = { high=3, medium=2, low=1 }
 local PRIORITY_COLOUR = { high="|cffff4444", medium="|cffffaa00", low="|cffffff44" }
 
 local activeEncounterID = nil
@@ -270,6 +291,21 @@ local function FireAlert(displayName, priority, tip, tag)
     if NightPulse:GetSetting("callouts", "playSound") then PlaySound(5274, "Master") end
 end
 
+-- ---- Filter helpers ----
+function CE:GetAbilityKey(encounterID, abilityName)
+    return tostring(encounterID) .. ":" .. abilityName
+end
+
+function CE:IsAbilityMuted(encounterID, abilityName)
+    local muted = NightPulse:GetSetting("callouts", "mutedAbilities") or {}
+    return muted[CE:GetAbilityKey(encounterID, abilityName)] == true
+end
+
+function CE:IsPriorityAllowed(priority)
+    local min = NightPulse:GetSetting("callouts", "minPriority") or "medium"
+    return (PRIORITY_RANK[priority] or 1) >= (PRIORITY_RANK[min] or 2)
+end
+
 local function ClearEncounterTimers()
     for _, t in ipairs(encounterTimers) do t:Cancel() end
     encounterTimers = {}
@@ -289,10 +325,14 @@ local function StartEncounterTimers(encounterID)
             local firstFire = math.max(ability.intervalSec - 3, 1)
             C_Timer.After(firstFire, function()
                 if activeEncounterID ~= encounterID then return end
-                FireAlert(ab.name, ab.priority, ab.tip, "|cff888888[~3s]|r")
+                if CE:IsPriorityAllowed(ab.priority) and not CE:IsAbilityMuted(encounterID, ab.name) then
+                    FireAlert(ab.name, ab.priority, ab.tip, "|cff888888[~3s]|r")
+                end
                 local ticker = C_Timer.NewTicker(ab.intervalSec, function()
                     if activeEncounterID ~= encounterID then return end
-                    FireAlert(ab.name, ab.priority, ab.tip, "|cff888888[~3s]|r")
+                    if CE:IsPriorityAllowed(ab.priority) and not CE:IsAbilityMuted(encounterID, ab.name) then
+                        FireAlert(ab.name, ab.priority, ab.tip, "|cff888888[~3s]|r")
+                    end
                 end)
                 table.insert(encounterTimers, ticker)
             end)
@@ -334,6 +374,9 @@ local function OnBossSpellCastStart(event, unit, castGUID, spellID)
     end)
     if ok3 then kickTag = kresult end
     local durationTag = durationSec and (" ("..durationSec.."s)") or ""
+    -- Apply priority and per-ability mute filters
+    if not CE:IsPriorityAllowed("medium") then return end
+    if activeEncounterID and CE:IsAbilityMuted(activeEncounterID, displayName) then return end
     FireAlert(displayName..durationTag, "medium", nil, kickTag)
 end
 
@@ -391,5 +434,8 @@ end
 NightPulse:RegisterEvent("PLAYER_LOGIN", function()
     if NightPulse:GetSetting("callouts", "enabled") then CE:Enable() end
 end)
+
+CE.encounters  = ENCOUNTER_ABILITIES
+CE.bossNames   = BOSS_NAMES
 
 NightPulse.CalloutEngine = CE

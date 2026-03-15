@@ -6,10 +6,12 @@ NightPulse = {}
 
 local DEFAULTS = {
     callouts = {
-        enabled     = true,
-        flashScreen = true,
-        playSound   = true,
-        spellList   = {},
+        enabled        = true,
+        flashScreen    = true,
+        playSound      = true,
+        spellList      = {},
+        minPriority    = "medium",  -- "high", "medium", or "low"
+        mutedAbilities = {},        -- [encounterID..":"..name] = true
     },
     affixTracker = {
         enabled     = true,
